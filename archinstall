@@ -347,8 +347,6 @@ formatBios () {
 datosUsuario () {
 	# Ingresar Datos de usuario
 	echo ""
-	read -p "Introduce tu disco a instalar Arch: " disco
-	echo ""
 	read -p "Introduce Nombre usuario Nuevo: " user
 	echo ""
 	read -p "Introduce la clave de $user: " userpasswd
@@ -362,8 +360,6 @@ datosUsuario () {
 	echo "los datos que ha ingresado son:"
 	echo ''
 	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' _
-	echo ''
-	echo "Selección de Disco: $disco"
 	echo ''
 	echo "Tu usuario: $user"
 	echo ''
@@ -556,23 +552,23 @@ grub () {
 
 	else
 
-	clear
-	arch-chroot /mnt /bin/bash -c "pacman -S grub os-prober --noconfirm"
-	echo '' 
-	arch-chroot /mnt /bin/bash -c "grub-install --target=i386-pc $disco"
-	######
-	sed -i "6iGRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"" /mnt/etc/default/grub
-	sed -i '7d' /mnt/etc/default/grub
-	######
-	echo ''
-	arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
-	echo '' 
-	echo 'ls -l /mnt/boot' 
-	ls -l /mnt/boot 
-	echo '' 
-	echo 'Lea bien que no tenga ningún error marcado' 
-	echo '> Confirme tener las IMG de linux para el arranque' 
-	echo '> Confirme tener la carpeta de GRUB para el arranque' 
+		clear
+		arch-chroot /mnt /bin/bash -c "pacman -S grub os-prober --noconfirm"
+		echo '' 
+		arch-chroot /mnt /bin/bash -c "grub-install --target=i386-pc $disco"
+		######
+		sed -i "6iGRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"" /mnt/etc/default/grub
+		sed -i '7d' /mnt/etc/default/grub
+		######
+		echo ''
+		arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
+		echo '' 
+		echo 'ls -l /mnt/boot' 
+		ls -l /mnt/boot 
+		echo '' 
+		echo 'Lea bien que no tenga ningún error marcado' 
+		echo '> Confirme tener las IMG de linux para el arranque' 
+		echo '> Confirme tener la carpeta de GRUB para el arranque' 
 
 	fi
 
@@ -878,11 +874,11 @@ if [ "$(id -u)" == "0" ]; then
 	localeGen
 	discosdisponibles
 	validarbios
-	datosUsuario
 	actualizarKeys
 	instalarSistemaBase
 	fstab
 	hosts
+	datosUsuario
 	addUser
 	idiomaSistema
 	zonaHoraria
