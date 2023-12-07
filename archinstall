@@ -49,6 +49,7 @@ validarbios () {
 		echo ""
 		date "+%F %H:%M"
 		sleep 3
+		formatUefi
 	else
 		clear
 		printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' _
@@ -57,6 +58,7 @@ validarbios () {
 		echo ""
 		date "+%F %H:%M"
 		sleep 3
+		formatBios
 	fi
 }
 
