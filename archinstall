@@ -28,6 +28,7 @@ discosdisponibles () {
 	clear
 	fdisk -l |  awk 'BEGIN{FS="bytes"","}{print $1} {print $2}' | grep ":" | sed '3d' | sed '4d' | sed '5d' | sed '3d'
 	sleep 3
+	echo ""
 	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' _
 	echo ""
 	echo "Rutas de Disco disponible: "
@@ -38,9 +39,9 @@ discosdisponibles () {
 	sleep 3
 }
 
-validarbios () {
+uefi=$( ls /sys/firmware/efi/ | grep -ic efivars )
 
-	uefi=$( ls /sys/firmware/efi/ | grep -ic efivars )
+validarbios () {
 
 	if [ $uefi == 1 ]
 	then
@@ -545,14 +546,16 @@ grub () {
 		clear
 		arch-chroot /mnt /bin/bash -c "pacman -S grub efibootmgr os-prober dosfstools --noconfirm"
 		echo '' 
-		echo 'Instalando EFI System >> bootx64.efi' 
+		echo 'Instalando EFI System >> bootx64.efi'
+		sleep 2
 		arch-chroot /mnt /bin/bash -c 'grub-install --target=x86_64-efi --efi-directory=/efi --removable' 
 		echo '' 
 		echo 'Instalando UEFI System >> grubx64.efi' 
+		sleep 2
 		arch-chroot /mnt /bin/bash -c 'grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=Arch'
 		######
-		sed -i "6iGRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"" /mnt/etc/default/grub
-		sed -i '7d' /mnt/etc/default/grub
+		#sed -i "6iGRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"" /mnt/etc/default/grub
+		#sed -i '7d' /mnt/etc/default/grub
 		######
 		echo ''
 		arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
@@ -576,6 +579,7 @@ grub () {
 		#sed -i '7d' /mnt/etc/default/grub
 		######
 		echo ''
+		sleep 3
 		arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
 		echo '' 
 		echo 'ls -l /mnt/boot' 
@@ -667,9 +671,9 @@ repoInstalacion () {
 	cd ..
 
 	#blackarch
-	curl -O https://blackarch.org/strap.sh; ls
-	chmod +x strap.sh
-	./strap.sh
+	arch-chroot /mnt /bin/bash -c "curl -O https://blackarch.org/strap.sh; ls"
+	arch-chroot /mnt /bin/bash -c "chmod +x strap.sh"
+	arch-chroot /mnt /bin/bash -c "./strap.sh"
 	clear
 }
 
@@ -880,8 +884,9 @@ final () {
 	echo "Desmontando disco"; echo ""; umount -R /mnt
 	swapoff -a
 	clear
-	sleep 5
+	sleep 3
 	echo "Reiniciando sistema"
+	sleep 3
 	reboot
 }
 
