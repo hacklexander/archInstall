@@ -27,6 +27,7 @@ discosdisponibles () {
 
 	clear
 	fdisk -l |  awk 'BEGIN{FS="bytes"","}{print $1} {print $2}' | grep ":" | sed '3d' | sed '4d' | sed '5d' | sed '3d'
+	sleep 3
 	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' _
 	echo ""
 	echo "Rutas de Disco disponible: "
@@ -213,6 +214,7 @@ formatUefi (){
 	else
 
 		echo "Ingresaste una letra incorrecta debe ser "s" o "n" "
+		sleep 3
 		clear 
 		formatUefi
 	fi
@@ -348,6 +350,7 @@ formatBios () {
 	else
 
 		echo "Ingresaste una letra incorrecta debe ser "s" o "n" "
+		sleep 3
 		clear 
 		formatBios
 	fi
@@ -362,7 +365,7 @@ datosUsuario () {
 	echo ""
 	read -p "Introduce la clave de Root/Administrador: " rootpasswd
 	echo ""
-
+	sleep 3
 
 	# Mostrar datos guardados
 	clear
@@ -376,6 +379,7 @@ datosUsuario () {
 	echo ''
 	echo "Clave de Administrador: $rootpasswd"
 	echo ''
+	sleep 3
 }
 
 
@@ -410,9 +414,8 @@ instalarSistemaBase () {
 	echo ""
 	echo "Instalando kernel stable"
 	echo ""
-	pacstrap /mnt linux-firmware linux linux-headers mkinitcpio
+	pacstrap /mnt linux-firmware linux linux-headers mkinitcpio sudo 
 	clear
-
 }
 
 fstab () {
@@ -442,13 +445,14 @@ hosts () {
 	clear
 	read -p "Introduce el nombre del equipo: " hostName
 	echo ""
-	echo "$hostName" > /mnt/etc/hostname
-	echo "127.0.1.1 $hostName.localdomain $hostName" > /mnt/etc/hosts
+	arch-chroot /mnt /bin/bash -c "echo "$hostName" > /etc/hostname"
+	arch-chroot /mnt /bin/bash -c "echo "127.0.1.1 $hostName.localdomain $hostName" > /etc/hosts"
 	clear
-	echo "Hostname: $(cat /mnt/etc/hostname)"
+	arch-chroot /mnt /bin/bash -c "echo "Hostname: $(cat /etc/hostname)""
 	echo ""
-	echo "Hosts: $(cat /mnt/etc/hosts)"
+	arch-chroot /mnt /bin/bash -c "echo "Hosts: $(cat /etc/hosts)""
 	echo ""
+	sleep 3
 	clear
 }
 
@@ -458,34 +462,35 @@ addUser () {
 	arch-chroot /mnt /bin/bash -c "(echo $rootpasswd ; echo $rootpasswd) | passwd root"
 	arch-chroot /mnt /bin/bash -c "useradd -m -g users -s /bin/bash $user"
 	arch-chroot /mnt /bin/bash -c "(echo $userpasswd ; echo $userpasswd) | passwd $user"
-	sed -i "80i $user ALL=(ALL) ALL"  /mnt/etc/sudoers
+	sed -i "80i $user ALL=(ALL) ALL"  /etc/sudoers
+	sleep 3
 	clear
 }
 
 idiomaSistema () {
 	# Idioma del sistema
+	arch-chroot /mnt /bin/bash -c "pacman -Syy --noconfirm"
 	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' _
 	echo -e ""
 	echo -e "\t\t\t| Idioma del Sistema |"
 	echo -e ""
-	echo "$idioma UTF-8" > /mnt/etc/locale.gen
+	arch-chroot /mnt /bin/bash -c "echo "$idioma UTF-8" > /etc/locale.gen"
 	arch-chroot /mnt /bin/bash -c "locale-gen" 
-	echo "LANG=$idioma" > /mnt/etc/locale.conf
+	arch-chroot /mnt /bin/bash -c "echo "LANG=$idioma" > /etc/locale.conf"
 	echo ""
-	cat /mnt/etc/locale.conf 
+	arch-chroot /mnt /bin/bash -c "cat /etc/locale.conf"
 	echo ""
-	cat /mnt/etc/locale.gen
+	arch-chroot /mnt /bin/bash -c "cat /etc/locale.gen"
 	sleep 4
 	echo ""
-	arch-chroot /mnt /bin/bash -c "export $(cat /mnt/etc/locale.conf)" 
-	export $(cat /mnt/etc/locale.conf)
+	arch-chroot /mnt /bin/bash -c "export $(cat /etc/locale.conf)" 
+	arch-chroot /mnt /bin/bash -c "export $(cat /etc/locale.conf)"
 	arch-chroot /mnt /bin/bash -c "sudo -u $user export $(cat /etc/locale.conf)"
-	export $(cat /etc/locale.conf)
-	export $(cat /mnt/etc/locale.conf)
+	arch-chroot /mnt /bin/bash -c "export $(cat /etc/locale.conf)"
+	arch-chroot /mnt /bin/bash -c "export $(cat /etc/locale.conf)"
 	exportlang=$(echo "LANG=$idioma")
-	export $exportlang
-	export LANG=$idioma
-	locale-gen
+	arch-chroot /mnt /bin/bash -c "export $exportlang"
+	arch-chroot /mnt /bin/bash -c "export LANG=$idioma"
 	arch-chroot /mnt /bin/bash -c "locale-gen" 
 	clear
 	sleep 3
@@ -512,8 +517,9 @@ mapaTeclado () {
 	# Establecer un mapa de teclado para la terminal virtual
 	curl https://ipapi.co/languages | awk -F "," '{print $1}' | sed -e's/.$//' | sed -e's/.$//' | sed -e's/.$//' > keymap
 	keymap=$(cat keymap)
-	echo "KEYMAP=$keymap" > /mnt/etc/vconsole.conf 
-	cat /mnt/etc/vconsole.conf 
+	arch-chroot /mnt /bin/bash -c "echo "KEYMAP=$keymap" > etc/vconsole.conf"
+	arch-chroot /mnt /bin/bash -c "cat etc/vconsole.conf"
+	sleep 3
 	clear
 }
 
@@ -524,7 +530,7 @@ actualizaMirrors () {
 	echo ""
 	arch-chroot /mnt /bin/bash -c "reflector --verbose --latest 15 --protocol http --protocol https --sort rate --save /etc/pacman.d/mirrorlist"
 	clear
-	cat /mnt/etc/pacman.d/mirrorlist
+	arch-chroot /mnt /bin/bash -c "cat etc/pacman.d/mirrorlist"
 	sleep 3
 	clear
 }
@@ -566,8 +572,8 @@ grub () {
 		echo '' 
 		arch-chroot /mnt /bin/bash -c "grub-install --target=i386-pc $disco"
 		######
-		sed -i "6iGRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"" /mnt/etc/default/grub
-		sed -i '7d' /mnt/etc/default/grub
+		#sed -i "6iGRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"" /mnt/etc/default/grub
+		#sed -i '7d' /mnt/etc/default/grub
 		######
 		echo ''
 		arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
@@ -578,6 +584,7 @@ grub () {
 		echo 'Lea bien que no tenga ningún error marcado' 
 		echo '> Confirme tener las IMG de linux para el arranque' 
 		echo '> Confirme tener la carpeta de GRUB para el arranque' 
+		sleep 4
 
 	fi
 
@@ -597,7 +604,7 @@ redes () {
 	arch-chroot /mnt /bin/bash -c "pacman -S iw wireless_tools wpa_supplicant dialog wireless-regdb --noconfirm"
 
 	# Bluetooth
-	arch-chroot /mnt /bin/bash -c "pacman -S bluez bluez-utils pulseaudio-bluetooth"
+	arch-chroot /mnt /bin/bash -c "pacman -S bluez bluez-utils pulseaudio-bluetooth --noconfirm"
 }
 
 
@@ -651,10 +658,11 @@ videoDriver () {
 
 repoInstalacion () {
 	#AUR
-	git clone https://aur.archlinux.org/paru-bin.git
-	cd /paru-bin/; ls
-	makepkg -si
-	$userpasswd
+	arch-chroot /mnt /bin/bash -c "cd /tmp"
+	arch-chroot /mnt /bin/bash -c "git clone https://aur.archlinux.org/paru-bin.git"
+	arch-chroot /mnt /bin/bash -c "cd /paru-bin/; ls"
+	arch-chroot /mnt /bin/bash -c "makepkg -si"
+	arch-chroot /mnt /bin/bash -c "$userpasswd"
 	clear
 	cd ..
 
@@ -869,10 +877,11 @@ escritorio (){
 
 final () {
 	#DESMONTAR Y REINICIAR
-	umount -R /mnt
+	echo "Desmontando disco"; echo ""; umount -R /mnt
 	swapoff -a
 	clear
 	sleep 5
+	echo "Reiniciando sistema"
 	reboot
 }
 
