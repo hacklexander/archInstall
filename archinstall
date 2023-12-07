@@ -34,6 +34,7 @@ discosdisponibles () {
 	echo $discosdisponibles
 	echo ""
 	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' _
+	sleep 3
 }
 
 validarbios () {
@@ -73,6 +74,8 @@ formatUefi (){
 	if [ $homePart == "s" ] 
 	then
 		#METODO DE DISCO PARA BIOS -> BOOT - SWAP - ROOT - HOME 
+		echo "El disco ${disco} sera formateado"
+		echo ""
 		echo "+100M 			tamaño particion BOOT"
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "20G				tamaño particion ROOT"
@@ -146,7 +149,8 @@ formatUefi (){
 	then
 
 		#METODO DE DISCO PARA BIOS -> BOOT - SWAP - ROOT  
-
+		echo "El disco ${disco} sera formateado"
+		echo ""
 		echo "+100M 			tamaño particion BOOT"
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "restante			tamaño particion ROOT"
@@ -216,20 +220,21 @@ formatUefi (){
 
 formatBios () {
 
+	disco=$(lsblk -lno NAME,SIZE,TYPE | grep 'disk' | awk '{print "/dev/" $1 }' | sort -u)
+
 	read -p "Desea crear una particion para /home? 	(s/n) --->  " homePart
 	read -p "Cuanta swap desea configurar?  /n Recomendado "4G" --->  " swapsize
 
 	if [ $homePart == "s" ]
 	then
 		#METODO DE DISCO PARA BIOS -> BOOT - SWAP - ROOT - HOME 
+		echo "El disco ${disco} sera formateado"
+		echo ""
 		echo "+100M 			tamaño particion BOOT"
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "20G				tamaño particion ROOT"
 		echo "restante			tamaño partición HOME"
 		
-	 	
-
-
 		dd if=/dev/zero of="${disco}" bs=100M count=10 status=progress
 		(echo o; echo n; echo p; echo 1; echo ""; echo +100M; echo n; echo p; echo 2; echo ""; echo +${swapsize}G; echo n; echo p; echo 3; echo ""; echo +20G; echo n; echo p; echo 4; echo ""; echo ""; echo t; echo 2; echo 82; echo a; echo 1; echo w; echo q) | fdisk ${disco}
 		fdisk -l ${disco} > /tmp/partition 
@@ -288,6 +293,8 @@ formatBios () {
 	elif [ $homePart == "n" ] 
 	then 
 		#METODO CON BIOS -> BOOT - SWAP - ROOT
+		echo "El disco ${disco} sera formateado"
+		echo ""
 		echo "+100M 			tamaño particion BOOT"
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "restante			tamaño particion ROOT"
