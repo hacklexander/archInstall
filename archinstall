@@ -473,7 +473,7 @@ addUser () {
 	arch-chroot /mnt /bin/bash -c "(echo $rootpasswd ; echo $rootpasswd) | passwd root";echo "";sleep 2
 	arch-chroot /mnt /bin/bash -c "useradd -m -g wheel -s /bin/bash $user";echo "";sleep 2
 	arch-chroot /mnt /bin/bash -c "(echo $userpasswd ; echo $userpasswd) | passwd $user";echo "";sleep 2
-	sed -i "108 s/#/ /" /etc/sudoers
+	arch-chroot /mnt /bin/bash -c "sed -i "108 s/#/ /" /etc/sudoers"
 	
 	sleep 3
 	clear
@@ -685,9 +685,9 @@ repoInstalacion () {
 	echo "** Instalacion de repositorio AUR **"; echo ""; sleep 2
 	arch-chroot /mnt /bin/bash -c "cd /tmp"
 	arch-chroot /mnt /bin/bash -c "git clone https://aur.archlinux.org/paru-bin.git"
-	arch-chroot /mnt /bin/bash -c "cd /paru-bin/; ls"
-	arch-chroot /mnt /bin/bash -c "makepkg -si"
-	arch-chroot /mnt /bin/bash -c "$userpasswd"
+	arch-chroot /mnt /bin/bash -c "cd /paru-bin/; ls"; sleep 3
+	arch-chroot /mnt /bin/bash -c "sudo makepkg -si"
+	arch-chroot /mnt /bin/bash -c "$userpasswd"; sleep 3
 	clear
 	cd ..
 
