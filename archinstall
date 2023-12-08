@@ -3,12 +3,6 @@
 #Editado por hacklexander 
 
 #funciones
-echo "***************************************************************************************************"
-echo "***************************************************************************************************"
-echo "								ARCH LINUX INSTALATION 												 "
-echo "								    by:Hacklexander													 "
-echo "***************************************************************************************************"
-echo "***************************************************************************************************"
 
 localeGen() {
 	idioma=$(curl https://ipapi.co/languages | awk -F "," '{print $1}' | sed 's/-/_/g' | sed "s|$|.UTF8|")
@@ -451,10 +445,10 @@ fstab () {
 hosts () {
 	echo "** Estableciendo Hosts y Nombre de computador **"; echo "";sleep 2
 	clear
-	read -p "Introduce el nombre del equipo: " hostName
+	read -p "Introduce el nombre del equipo: " namelocal
 	echo ""
-	arch-chroot /mnt /bin/bash -c "echo "$hostName" > /etc/hostname"
-	arch-chroot /mnt /bin/bash -c "echo "127.0.1.1 $hostName.localdomain $hostName" > /etc/hosts"
+	arch-chroot /mnt /bin/bash -c "echo "$namelocal" > /etc/hostname"
+	arch-chroot /mnt /bin/bash -c "echo "127.0.1.1 $namelocal.localdomain $namelocal" > /etc/hosts"
 	clear
 	arch-chroot /mnt /bin/bash -c "echo "Hostname: $(cat /etc/hostname)""
 	echo ""
@@ -468,9 +462,10 @@ hosts () {
 addUser () {
 	echo "** Agregando usuario y claves con administrador";echo "";echo "";sleep 2
 	arch-chroot /mnt /bin/bash -c "(echo $rootpasswd ; echo $rootpasswd) | passwd root";echo "";sleep 2
-	arch-chroot /mnt /bin/bash -c "useradd -m -g users -s /bin/bash $user";echo "";sleep 2
+	arch-chroot /mnt /bin/bash -c "useradd -m -g wheel -s /bin/bash $user";echo "";sleep 2
 	arch-chroot /mnt /bin/bash -c "(echo $userpasswd ; echo $userpasswd) | passwd $user";echo "";sleep 2
-	sed -i "80i $user ALL=(ALL) ALL"  /etc/sudoers
+	sed -i "108 s/#/ /" /etc/sudoers
+	
 	sleep 3
 	clear
 }
@@ -583,10 +578,11 @@ grub () {
 		#sed -i "6iGRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"" /mnt/etc/default/grub
 		#sed -i '7d' /mnt/etc/default/grub
 		######
-		echo ''
+		echo ""
+		echo ""
 		sleep 3
 		arch-chroot /mnt /bin/bash -c "grub-mkconfig -o /boot/grub/grub.cfg"
-		echo '' 
+		echo ""
 		echo 'ls -l /mnt/boot' 
 		ls -l /mnt/boot 
 		echo '' 
@@ -915,10 +911,17 @@ final () {
 #Function Main 
 
 if [ "$(id -u)" == "0" ]; then
+	echo "***************************************************************************************************"
+	echo "***************************************************************************************************"
+	echo "								ARCH LINUX INSTALATION 												 "
+	echo "								    by:Hacklexander													 "
+	echo "***************************************************************************************************"
+	echo "***************************************************************************************************"
+
 	localeGen
 	discosdisponibles
 	validarbios
-	actualizarKeys
+	#actualizarKeys
 	instalarSistemaBase
 	fstab
 	hosts
@@ -927,7 +930,7 @@ if [ "$(id -u)" == "0" ]; then
 	idiomaSistema
 	zonaHoraria
 	mapaTeclado
-	actualizaMirrors
+	#actualizaMirrors
 	grub
 	redes
 	cambioShell
