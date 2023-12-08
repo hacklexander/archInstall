@@ -5,12 +5,12 @@
 #funciones
 
 bienvenida () {
-	echo "***************************************************************************************************"
-	echo "***************************************************************************************************"
+	echo "************************************************************************************************************************************************"
+	echo "************************************************************************************************************************************************"
 	echo "								ARCH LINUX INSTALATION 												 "
 	echo "								    by:Hacklexander													 "
-	echo "***************************************************************************************************"
-	echo "***************************************************************************************************"
+	echo "************************************************************************************************************************************************"
+	echo "************************************************************************************************************************************************"
 }
 
 localeGen() {
@@ -80,24 +80,24 @@ formatUefi (){
 	read -p "Desea crear una particion para /home? 	(s/n) --->  " homePart
 	echo ""
 	read -p "Cuanta swap desea configurar?  /n Recomendado "4G" --->  " swapsize
-	echo "";sleep 2
+	echo ""
 
 	if [ $homePart == "s" ] 
 	then
 		#METODO DE DISCO PARA BIOS -> BOOT - SWAP - ROOT - HOME 
 		echo "El disco ${disco} sera formateado"
 		echo ""
-		echo "+100M 			tamaño particion BOOT"
+		echo "+150M 			tamaño particion BOOT"
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "20G				tamaño particion ROOT"
 		echo "restante			tamaño partición HOME"
-		echo ""
+		echo "";sleep 3
 
 		#swapsize=$(free --giga | awk '/^Mem:/{print $2}')
 		# dd if=/dev/zero of="${disco}" bs=100M count=10 status=progress
 		
 		parted ${disco} mklabel gpt
-		sgdisk ${disco} -n=1:0:+100M -t=1:ef00
+		sgdisk ${disco} -n=1:0:+150M -t=1:ef00
 		sgdisk ${disco} -n=2:0:+${swapsize}G -t=2:8200
 		sgdisk ${disco} -n=3:0:+20G -t=3:8300
 		sgdisk ${disco} -n=4:0:0
@@ -136,11 +136,11 @@ formatUefi (){
 		mkfs.ext4 $(cat root-efi) 
 		mount $(cat root-efi) /mnt 
 
-		mkdir -p /mnt/home
+		mkdir /mnt/home
 		mkfs.ext4 $(cat home-efi) 
 		mount $(cat home-efi) /mnt/home
 
-		mkdir -p /mnt/efi 
+		mkdir /mnt/efi 
 		mkfs.fat -F 32 $(cat boot-efi) 
 		mount $(cat boot-efi) /mnt/efi 
 
@@ -162,7 +162,7 @@ formatUefi (){
 		#METODO DE DISCO PARA BIOS -> BOOT - SWAP - ROOT  
 		echo "El disco ${disco} sera formateado"
 		echo ""
-		echo "+100M 			tamaño particion BOOT"
+		echo "+150M 			tamaño particion BOOT"
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "restante			tamaño particion ROOT"
 		echo ""
@@ -170,7 +170,7 @@ formatUefi (){
 	# free --giga | awk '/^Mem:/{print $2}'
 
 		parted ${disco} mklabel gpt
-		sgdisk ${disco} -n=1:0:+100M -t=1:ef00
+		sgdisk ${disco} -n=1:0:+150M -t=1:ef00
 		sgdisk ${disco} -n=2:0:+${swapsize}G -t=2:8200
 		sgdisk ${disco} -n=3:0:0
 		fdisk -l ${disco} > /tmp/partition
@@ -204,7 +204,7 @@ formatUefi (){
 		mkfs.ext4 $(cat root-efi) 
 		mount $(cat root-efi) /mnt 
 
-		mkdir -p /mnt/efi 
+		mkdir /mnt/efi 
 		mkfs.fat -F 32 $(cat boot-efi) 
 		mount $(cat boot-efi) /mnt/efi 
 
@@ -245,14 +245,14 @@ formatBios () {
 		#METODO DE DISCO PARA BIOS -> BOOT - SWAP - ROOT - HOME 
 		echo "El disco ${disco} sera formateado"
 		echo ""
-		echo "+100M 			tamaño particion BOOT"
+		echo "+150M 			tamaño particion BOOT"
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "20G				tamaño particion ROOT"
 		echo "restante			tamaño partición HOME"
-		echo ""
+		echo "";sleep 3
 		
-		dd if=/dev/zero of="${disco}" bs=100M count=10 status=progress
-		(echo o; echo n; echo p; echo 1; echo ""; echo +100M; echo n; echo p; echo 2; echo ""; echo +${swapsize}G; echo n; echo p; echo 3; echo ""; echo +20G; echo n; echo p; echo 4; echo ""; echo ""; echo t; echo 2; echo 82; echo a; echo 1; echo w; echo q) | fdisk ${disco}
+		dd if=/dev/zero of="${disco}" bs=150M count=10 status=progress
+		(echo o; echo n; echo p; echo 1; echo ""; echo +150M; echo n; echo p; echo 2; echo ""; echo +${swapsize}G; echo n; echo p; echo 3; echo ""; echo +20G; echo n; echo p; echo 4; echo ""; echo ""; echo t; echo 2; echo 82; echo a; echo 1; echo w; echo q) | fdisk ${disco}
 		fdisk -l ${disco} > /tmp/partition 
 		cat /tmp/partition
 		sleep 3
@@ -287,11 +287,11 @@ formatBios () {
 		mkfs.ext4 $(cat root-bios) 
 		mount $(cat root-bios) /mnt 
 
-		mkdir -p /mnt/boot
-		mkfs.ext4 $(cat boot-bios) 
+		mkdir /mnt/boot
+		mkfs.ext2 $(cat boot-bios) 
 		mount $(cat boot-bios) /mnt/boot
 
-		mkdir -p /mnt/home
+		mkdir /mnt/home
 		mkfs.ext4 $(cat home-bios) 
 		mount $(cat home-bios) /mnt/home
 
@@ -311,13 +311,13 @@ formatBios () {
 		#METODO CON BIOS -> BOOT - SWAP - ROOT
 		echo "El disco ${disco} sera formateado"
 		echo ""
-		echo "+100M 			tamaño particion BOOT"
+		echo "+150M 			tamaño particion BOOT"
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "restante			tamaño particion ROOT"
-		echo ""
+		echo "";sleep 3
 
 		sgdisk --zap-all ${disco}
-		(echo o; echo n; echo p; echo 1; echo ""; echo +100M; echo n; echo p; echo 2; echo ""; echo +${swapsize}G; echo n; echo p; echo 3; echo ""; echo ""; echo t; echo 2; echo 82; echo a; echo 1; echo w; echo q) | fdisk ${disco}
+		(echo o; echo n; echo p; echo 1; echo ""; echo +150M; echo n; echo p; echo 2; echo ""; echo +${swapsize}G; echo n; echo p; echo 3; echo ""; echo ""; echo t; echo 2; echo 82; echo a; echo 1; echo w; echo q) | fdisk ${disco}
 		fdisk -l ${disco} > /tmp/partition 
 		cat /tmp/partition
 		sleep 3
