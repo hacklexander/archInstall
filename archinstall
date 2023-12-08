@@ -4,6 +4,15 @@
 
 #funciones
 
+bienvenida () {
+	echo "***************************************************************************************************"
+	echo "***************************************************************************************************"
+	echo "								ARCH LINUX INSTALATION 												 "
+	echo "								    by:Hacklexander													 "
+	echo "***************************************************************************************************"
+	echo "***************************************************************************************************"
+}
+
 localeGen() {
 	idioma=$(curl https://ipapi.co/languages | awk -F "," '{print $1}' | sed 's/-/_/g' | sed "s|$|.UTF8|")
 	exportlang=$(echo "LANG=$idioma")
@@ -339,8 +348,8 @@ formatBios () {
 		mkfs.ext4 $(cat root-bios) 
 		mount $(cat root-bios) /mnt 
 
-		mkdir -p /mnt/boot
-		mkfs.ext4 $(cat boot-bios) 
+		mkdir /mnt/boot
+		mkfs.ext2 $(cat boot-bios) 
 		mount $(cat boot-bios) /mnt/boot
 
 		mkswap $(cat swap-bios) 
@@ -911,13 +920,7 @@ final () {
 #Function Main 
 
 if [ "$(id -u)" == "0" ]; then
-	echo "***************************************************************************************************"
-	echo "***************************************************************************************************"
-	echo "								ARCH LINUX INSTALATION 												 "
-	echo "								    by:Hacklexander													 "
-	echo "***************************************************************************************************"
-	echo "***************************************************************************************************"
-
+	bienvenida
 	localeGen
 	discosdisponibles
 	validarbios
