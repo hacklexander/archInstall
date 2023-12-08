@@ -3,13 +3,17 @@
 #Editado por hacklexander 
 
 #funciones
+echo "***************************************************************************************************"
+echo "***************************************************************************************************"
+echo "								ARCH LINUX INSTALATION 												 "
+echo "								    by:Hacklexander													 "
+echo "***************************************************************************************************"
+echo "***************************************************************************************************"
 
 localeGen() {
-
 	idioma=$(curl https://ipapi.co/languages | awk -F "," '{print $1}' | sed 's/-/_/g' | sed "s|$|.UTF8|")
 	exportlang=$(echo "LANG=$idioma")
-
-clear 
+	clear 
 	echo "$idioma UTF-8" > /etc/locale.gen
 	locale-gen
 	echo "LANG=$idioma" > /etc/locale.conf
@@ -67,11 +71,13 @@ validarbios () {
 
 formatUefi (){
 	#Fuente: https://wiki.archlinux.org/index.php/GPT_fdisk
-
+	echo "** Creacion de particiones y formateo **";echo "";sleep 2
 	disco=$(lsblk -lno NAME,SIZE,TYPE | grep 'disk' | awk '{print "/dev/" $1 }' | sort -u)
 
 	read -p "Desea crear una particion para /home? 	(s/n) --->  " homePart
+	echo ""
 	read -p "Cuanta swap desea configurar?  /n Recomendado "4G" --->  " swapsize
+	echo "";sleep 2
 
 	if [ $homePart == "s" ] 
 	then
@@ -82,6 +88,7 @@ formatUefi (){
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "20G				tamaño particion ROOT"
 		echo "restante			tamaño partición HOME"
+		echo ""
 
 		#swapsize=$(free --giga | awk '/^Mem:/{print $2}')
 		# dd if=/dev/zero of="${disco}" bs=100M count=10 status=progress
@@ -92,8 +99,7 @@ formatUefi (){
 		sgdisk ${disco} -n=3:0:+20G -t=3:8300
 		sgdisk ${disco} -n=4:0:0
 		fdisk -l ${disco} > /tmp/partition
-		echo ""
-		echo ""
+		echo "";echo ""
 		cat /tmp/partition
 		sleep 3
 
@@ -122,7 +128,7 @@ formatUefi (){
 
 		clear
 		echo ""
-		echo "Formateando Particiones"
+		echo "** Formateando Particiones **"
 		echo ""
 		mkfs.ext4 $(cat root-efi) 
 		mount $(cat root-efi) /mnt 
@@ -156,6 +162,7 @@ formatUefi (){
 		echo "+100M 			tamaño particion BOOT"
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "restante			tamaño particion ROOT"
+		echo ""
 
 	# free --giga | awk '/^Mem:/{print $2}'
 
@@ -189,7 +196,7 @@ formatUefi (){
 
 		clear
 		echo ""
-		echo "Formateando Particiones"
+		echo "** Formateando Particiones **"
 		echo ""
 		mkfs.ext4 $(cat root-efi) 
 		mount $(cat root-efi) /mnt 
@@ -209,8 +216,8 @@ formatUefi (){
 		echo ""
 		echo "Revise en punto de montaje en MOUNTPOINT - PRESIONE ENTER"
 		echo ""
-		lsblk -l
-		read line
+		lsblk -l;sleep 3
+		clear 
 
 	else
 
@@ -222,11 +229,13 @@ formatUefi (){
 }
 
 formatBios () {
-
+	echo "** Creacion de particiones y formateo **";echo "";sleep 2
 	disco=$(lsblk -lno NAME,SIZE,TYPE | grep 'disk' | awk '{print "/dev/" $1 }' | sort -u)
 
 	read -p "Desea crear una particion para /home? 	(s/n) --->  " homePart
+	echo ""
 	read -p "Cuanta swap desea configurar?  /n Recomendado "4G" --->  " swapsize
+	echo ""
 
 	if [ $homePart == "s" ]
 	then
@@ -237,6 +246,7 @@ formatBios () {
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "20G				tamaño particion ROOT"
 		echo "restante			tamaño partición HOME"
+		echo ""
 		
 		dd if=/dev/zero of="${disco}" bs=100M count=10 status=progress
 		(echo o; echo n; echo p; echo 1; echo ""; echo +100M; echo n; echo p; echo 2; echo ""; echo +${swapsize}G; echo n; echo p; echo 3; echo ""; echo +20G; echo n; echo p; echo 4; echo ""; echo ""; echo t; echo 2; echo 82; echo a; echo 1; echo w; echo q) | fdisk ${disco}
@@ -269,7 +279,7 @@ formatBios () {
 
 		clear
 		echo ""
-		echo "Formateando Particiones"
+		echo "** Formateando Particiones **"
 		echo ""
 		mkfs.ext4 $(cat root-bios) 
 		mount $(cat root-bios) /mnt 
@@ -301,6 +311,7 @@ formatBios () {
 		echo "+100M 			tamaño particion BOOT"
 		echo "+${swapsize}G  	tamaño particion SWAP"
 		echo "restante			tamaño particion ROOT"
+		echo ""
 
 		sgdisk --zap-all ${disco}
 		(echo o; echo n; echo p; echo 1; echo ""; echo +100M; echo n; echo p; echo 2; echo ""; echo +${swapsize}G; echo n; echo p; echo 3; echo ""; echo ""; echo t; echo 2; echo 82; echo a; echo 1; echo w; echo q) | fdisk ${disco}
@@ -329,7 +340,7 @@ formatBios () {
 
 		clear
 		echo ""
-		echo "Formateando Particiones"
+		echo "** Formateando Particiones **"
 		echo ""
 		mkfs.ext4 $(cat root-bios) 
 		mount $(cat root-bios) /mnt 
@@ -386,8 +397,7 @@ datosUsuario () {
 
 
 actualizarKeys() {
-	# Actualización de llaves y mirroslist del LIVECD
-	clear
+	echo "** Actualización de llaves y mirroslist del LIVECD **";echo "";sleep
 	pacman -Syy
 	pacman -Sy archlinux-keyring --noconfirm 
 	clear
@@ -408,22 +418,19 @@ instalarSistemaBase () {
 	# Instalando Sistema base en nuestro Disco
 	echo ""
 	echo "Instalando Sistema base"
-	echo ""
+	echo "";sleep 2
 	pacstrap /mnt base base-devel nano reflector python rsync
 	clear
 	# Instalación del kernel stable
 	echo ""
 	echo "Instalando kernel stable"
-	echo ""
+	echo "";sleep 2
 	pacstrap /mnt linux-firmware linux linux-headers mkinitcpio sudo 
 	clear
 }
 
 fstab () {
-	# Creando Archivo FSTAB para detectar al iniciar el sistema
-	echo ""
-	echo "Archivo FSTAB"
-	echo ""
+	echo "** Creando Archivo FSTAB para detectar al iniciar el sistema **";echo "";sleep 2
 	echo "genfstab -p /mnt >> /mnt/etc/fstab"
 	echo ""
 	genfstab -p /mnt >> /mnt/etc/fstab
@@ -442,7 +449,7 @@ fstab () {
 #clear
 
 hosts () {
-	#Hosts y Nombre de computador
+	echo "** Estableciendo Hosts y Nombre de computador **"; echo "";sleep 2
 	clear
 	read -p "Introduce el nombre del equipo: " hostName
 	echo ""
@@ -459,17 +466,17 @@ hosts () {
 
 
 addUser () {
-	# Agregando usuario y claves con administrador
-	arch-chroot /mnt /bin/bash -c "(echo $rootpasswd ; echo $rootpasswd) | passwd root"
-	arch-chroot /mnt /bin/bash -c "useradd -m -g users -s /bin/bash $user"
-	arch-chroot /mnt /bin/bash -c "(echo $userpasswd ; echo $userpasswd) | passwd $user"
+	echo "** Agregando usuario y claves con administrador";echo "";echo "";sleep 2
+	arch-chroot /mnt /bin/bash -c "(echo $rootpasswd ; echo $rootpasswd) | passwd root";echo "";sleep 2
+	arch-chroot /mnt /bin/bash -c "useradd -m -g users -s /bin/bash $user";echo "";sleep 2
+	arch-chroot /mnt /bin/bash -c "(echo $userpasswd ; echo $userpasswd) | passwd $user";echo "";sleep 2
 	sed -i "80i $user ALL=(ALL) ALL"  /etc/sudoers
 	sleep 3
 	clear
 }
 
 idiomaSistema () {
-	# Idioma del sistema
+	echo "** Estableciondo Idioma del sistema **";echo "";sleep 2
 	arch-chroot /mnt /bin/bash -c "pacman -Syy --noconfirm"
 	printf '%*s\n' "${COLUMNS:-$(tput cols)}" '' | tr ' ' _
 	echo -e ""
@@ -499,7 +506,7 @@ idiomaSistema () {
 
 
 zonaHoraria () {
-	# Zona horaria Automatica
+	echo "** Estableciondo Zona horaria Automatica **";echo "";sleep 2
 	arch-chroot /mnt /bin/bash -c "pacman -Sy curl --noconfirm"
 	curl https://ipapi.co/timezone > zonahoraria
 	zonahoraria=$(cat zonahoraria)
@@ -515,7 +522,7 @@ zonaHoraria () {
 
 
 mapaTeclado () {
-	# Establecer un mapa de teclado para la terminal virtual
+	echo "** Estableciondo mapa de teclado para la terminal virtual **";echo "";sleep 2
 	curl https://ipapi.co/languages | awk -F "," '{print $1}' | sed -e's/.$//' | sed -e's/.$//' | sed -e's/.$//' > keymap
 	keymap=$(cat keymap)
 	arch-chroot /mnt /bin/bash -c "echo "KEYMAP=$keymap" > etc/vconsole.conf"
@@ -540,10 +547,10 @@ actualizaMirrors () {
 
 
 grub () {
-	# Instalación de GRUB - Arranque
+	echo "** Instalación de GRUB - Arranque **";echo ""; sleep 2 
 	if [ $uefi == 1 ]
 	then
-		clear
+		echo "** GRUB UEFI **"; echo ""; sleep 2
 		arch-chroot /mnt /bin/bash -c "pacman -S grub efibootmgr os-prober dosfstools --noconfirm"
 		echo '' 
 		echo 'Instalando EFI System >> bootx64.efi'
@@ -567,13 +574,11 @@ grub () {
 		echo '> Confirme tener las IMG de linux para el arranque' 
 		echo '> Confirme tener la carpeta de GRUB para el arranque' 
 		sleep 4
-
 	else
-
-		clear
+		echo "** GRUB BIOS **";echo ""; sleep 2
 		arch-chroot /mnt /bin/bash -c "pacman -S grub os-prober --noconfirm"
 		echo '' 
-		arch-chroot /mnt /bin/bash -c "grub-install --target=i386-pc $disco"
+		arch-chroot /mnt /bin/bash -c "grub-install $disco"
 		######
 		#sed -i "6iGRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"" /mnt/etc/default/grub
 		#sed -i '7d' /mnt/etc/default/grub
@@ -598,6 +603,7 @@ grub () {
 
 redes () {
 	# Ethernet
+	echo "** Instalacion de herramientas Ethernet **"; echo ""; sleep 2 
 	arch-chroot /mnt /bin/bash -c "pacman -S dhcpcd networkmanager iwd net-tools ifplugd --noconfirm"
 	arch-chroot /mnt /bin/bash -c "systemctl enable dhcpcd NetworkManager"
 	echo "noipv6rs" >> /mnt/etc/dhcpcd.conf
@@ -605,15 +611,20 @@ redes () {
 	clear
 
 	# Wifi
+	echo "** Instalacion de herramientas wifi **"; echo "";sleep 2
 	arch-chroot /mnt /bin/bash -c "pacman -S iw wireless_tools wpa_supplicant dialog wireless-regdb --noconfirm"
+	clear
 
 	# Bluetooth
+	echo "** Instalacion de herramientas bluetooth **"; echo "";sleep 2
 	arch-chroot /mnt /bin/bash -c "pacman -S bluez bluez-utils pulseaudio-bluetooth --noconfirm"
+	clear
 }
 
 
 cambioShell () {
 	# Shell del sistema
+	echo "** Cambiando de bash a zsh **";echo ""; sleep 2
 	SH=zsh
 	arch-chroot /mnt /bin/bash -c "pacman -S zsh zsh-completions zsh-syntax-highlighting zsh-autosuggestions --noconfirm"
 	arch-chroot /mnt /bin/bash -c "chsh -s /bin/$SH"
@@ -624,6 +635,7 @@ cambioShell () {
 
 dirsUser () {
 	# Directorios del sistema
+	echo "** Creacion de directorios de sistema **"; echo ""; sleep 2
 	arch-chroot /mnt /bin/bash -c "pacman -S git wget neofetch lsb-release xdg-user-dirs --noconfirm"
 	arch-chroot /mnt /bin/bash -c "xdg-user-dirs-update"
 	echo ""
@@ -635,6 +647,9 @@ dirsUser () {
 
 videoDriver () {
 	# Driver de Vídeo automatico solo driver Libres
+	echo "** Instalacion de Driver de video **"; echo ""; sleep 2
+
+
 	if (lspci | grep VGA | grep "NVIDIA\|nVidia" &>/dev/null); then
 	#Nvidia
 	arch-chroot /mnt /bin/bash -c "pacman -S xf86-video-nouveau mesa lib32-mesa mesa-vdpau libva-mesa-driver lib32-mesa-vdpau lib32-libva-mesa-driver libva-vdpau-driver libvdpau-va-gl libva-utils vdpauinfo libvdpau lib32-libvdpau opencl-mesa clinfo ocl-icd lib32-ocl-icd opencl-headers --noconfirm"
@@ -662,6 +677,7 @@ videoDriver () {
 
 repoInstalacion () {
 	#AUR
+	echo "** Instalacion de repositorio AUR **"; echo ""; sleep 2
 	arch-chroot /mnt /bin/bash -c "cd /tmp"
 	arch-chroot /mnt /bin/bash -c "git clone https://aur.archlinux.org/paru-bin.git"
 	arch-chroot /mnt /bin/bash -c "cd /paru-bin/; ls"
@@ -671,6 +687,7 @@ repoInstalacion () {
 	cd ..
 
 	#blackarch
+	echo "** Instalacion de repositorio BlackArch **"; echo ""; sleep 2
 	arch-chroot /mnt /bin/bash -c "curl -O https://blackarch.org/strap.sh; ls"
 	arch-chroot /mnt /bin/bash -c "chmod +x strap.sh"
 	arch-chroot /mnt /bin/bash -c "./strap.sh"
@@ -879,6 +896,10 @@ escritorio (){
 	esac
 }
 
+completeArch () {
+	echo "** Instalacion completada, verifique datos antes de reiniciar **";sleep 4
+}
+
 final () {
 	#DESMONTAR Y REINICIAR
 	echo "Desmontando disco"; echo ""; umount -R /mnt
@@ -914,7 +935,8 @@ if [ "$(id -u)" == "0" ]; then
 	videoDriver
 	repoInstalacion
 	escritorio
-	final
+	completeArch
+	#final
 else
 	echo -e "[*] No soy root /n"
 fi
